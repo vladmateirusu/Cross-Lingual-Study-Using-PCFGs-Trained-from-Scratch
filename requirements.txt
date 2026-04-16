@@ -1,6 +1,0 @@
-nltk
-conllu
-numpy
-pandas
-matplotlib
-scipy

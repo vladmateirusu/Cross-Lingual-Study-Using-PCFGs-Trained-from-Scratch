@@ -1,9 +1,0 @@
-__pycache__/
-*.py[cod]
-*.pkl
-*.pickle
-.ipynb_checkpoints/
-data/raw/
-data/processed/
-results/
-*.conllu

@@ -1,57 +1,118 @@
-# Does Language Typology Shape PP-Attachment Preferences?
-### A Cross-Lingual Study Using PCFGs Trained from Scratch
-**COMP 550 — Winter 2026**  
-Vlad Rusu, Howe Wu, Makram Kerbage
+# PP-Attachment Cross-Lingual Study — Code
 
----
-
-## Research Question
-
-Do PCFGs trained from scratch on typologically different languages (English, Japanese, Arabic) resolve PP-attachment ambiguity in systematically different ways, and do these differences correlate with word-order typology?
+COMP 550 Final Project, Winter 2026
 
 ## Project Structure
 
 ```
-├── data/
-│   ├── raw/            # Original UD treebanks (English Penn UD, Japanese GSD, Arabic PADT)
-│   └── processed/      # Binarized/cleaned trees ready for PCFG training
-├── src/
-│   ├── pcfg/           # Grammar extraction, MLE estimation, parent annotation, markovization
-│   ├── parsing/        # Probabilistic CKY parser
-│   ├── evaluation/     # PP-attachment classification and cross-lingual analysis
-│   └── utils/          # Treebank loading, tree manipulation helpers
-├── test_set/           # Manually constructed PP-ambiguous sentences per language
-├── results/
-│   ├── parses/         # Raw parse outputs
-│   └── analysis/       # VP- vs NP-attachment rates, typology correlation
-├── notebooks/          # Exploratory analysis and visualization
-└── report/             # Final paper
+pp_project/
+│
+├── run_pipeline.py          # Master runner (runs all steps)
+│
+├── step1_treebank_analysis.py   # Step 1: UD treebank PP-attachment baseline
+├── step2_pcfg_training.py       # Step 2: PCFG training (MLE + parent annot. + markov)
+├── step3_cky_parser.py          # Step 3: Probabilistic CKY parser
+├── step4_5_evaluation.py        # Step 4 & 5: Test set + evaluation
+│
+├── data/                    # Treebank files (you must download these)
+│   ├── en_ewt-ud-train.conllu
+│   ├── ja_gsd-ud-train.conllu
+│   ├── ar_padt-ud-train.conllu
+│   ├── en_trees_train.txt   # PTB constituency trees (converted from UD)
+│   ├── ja_trees_train.txt
+│   └── ar_trees_train.txt
+│
+├── models/                  # Saved PCFG grammars (auto-created)
+│   ├── english_grammar.pkl
+│   ├── japanese_grammar.pkl
+│   └── arabic_grammar.pkl
+│
+└── results/                 # Evaluation output (auto-created)
+    ├── results_detailed.json
+    ├── results_summary.csv
+    └── results_per_sentence.csv
 ```
-
-## Pipeline
-
-1. **Train PCFGs** — Extract rules from UD treebanks via MLE. Apply parent annotation + horizontal Markovization (Johnson, 1998).
-2. **Build test set** — Construct PP-ambiguous sentences in each language where a PP can attach to either VP or NP.
-3. **Parse & analyze** — Run probabilistic CKY on each test sentence. Compare VP- vs NP-attachment rates across languages; correlate with head-directionality and case-marking typology.
-
-## Data Sources
-
-| Language | Treebank | Word Order | Case Marking |
-|----------|----------|------------|--------------|
-| English  | Penn UD  | SVO        | No           |
-| Japanese | GSD      | SOV        | Yes          |
-| Arabic   | PADT     | VSO        | Yes          |
-
-All treebanks are from [Universal Dependencies](https://universaldependencies.org/).
 
 ## Setup
 
+### 1. Install dependencies
+
 ```bash
-pip install -r requirements.txt
+pip install conllu nltk
 ```
 
-## References
+### 2. Download UD Treebanks
 
-- Johnson, M. (1998). The effect of alternative tree representations on tree bank grammars.
-- Jin, L., Oh, B.-D., & Schuler, W. (2021). Character-based PCFG Induction for Modeling the Syntactic Acquisition of Morphologically Rich Languages. EMNLP 2021.
-- Schwartz, L., Aikawa, T., & Quirk, C. (2003). Disambiguation of English PP attachment using multilingual aligned data. MT Summit IX.
+Go to https://universaldependencies.org/ and download:
+- **English**: `UD_English-EWT`  → `en_ewt-ud-train.conllu`
+- **Japanese**: `UD_Japanese-GSD` → `ja_gsd-ud-train.conllu`
+- **Arabic**: `UD_Arabic-PADT`   → `ar_padt-ud-train.conllu`
+
+Place all `.conllu` files in the `data/` directory.
+
+### 3. Convert UD to PTB constituency trees (for Step 2)
+
+Step 2 (PCFG training) requires **constituency trees** in PTB bracket format.
+UD treebanks use dependency format, so you must convert them.
+
+**Option A — Stanford NLP toolkit** (recommended):
+```bash
+# Download: https://stanfordnlp.github.io/CoreNLP/
+java -cp stanford-parser.jar \
+  edu.stanford.nlp.trees.ud.UniversalDependenciesToConstituentConverter \
+  data/en_ewt-ud-train.conllu > data/en_trees_train.txt
+```
+
+**Option B — udapi** (Python):
+```bash
+pip install udapi
+udapy -s read.Conllu files=data/en_ewt-ud-train.conllu \
+      ud.Convert2Pd write.Treex > tmp.treex
+# Then convert .treex to PTB format using a script
+```
+
+**Option C** — If you already have Penn Treebank (for English), use it directly
+and skip conversion. Place PTB-format trees (one per line) in `data/en_trees_train.txt`.
+
+### 4. Run the full pipeline
+
+```bash
+python run_pipeline.py
+```
+
+Or run individual steps:
+
+```bash
+python step1_treebank_analysis.py   # Baseline attachment rates
+python step2_pcfg_training.py       # Train grammars
+python step4_5_evaluation.py        # Evaluate on test set
+```
+
+## What each step does
+
+| Step | File | Description |
+|------|------|-------------|
+| 1 | `step1_treebank_analysis.py` | Counts VP vs NP attachment in raw UD treebanks |
+| 2 | `step2_pcfg_training.py` | Trains PCFGs with MLE + parent annotation + markovization + CNF |
+| 3 | `step3_cky_parser.py` | Probabilistic CKY parser; extracts PP-attachment from parse tree |
+| 4+5 | `step4_5_evaluation.py` | Runs parser on 30 ambiguous sentences/language; reports attachment rates and margins |
+
+## Notes on the test sentences (Step 4)
+
+The 30 English sentences are hand-crafted following the paper's methodology.
+The Japanese and Arabic sentences are **romanized/transliterated placeholders**
+and must be replaced with properly tokenized native-script sentences verified
+by a native speaker or sourced from naturally occurring treebank examples.
+
+When replacing, make sure each sentence:
+1. Follows [Subject] [Verb] [Object NP] [PP] structure
+2. Has a PP semantically compatible with BOTH the verb and the noun
+3. Has been verified by a native/near-native speaker
+
+## Output
+
+After running the pipeline, results are in `results/`:
+
+- `results_summary.csv` — VP%, NP%, avg margin per language (Table 2 in paper)
+- `results_per_sentence.csv` — attachment decision for each sentence
+- `results_detailed.json` — full output with log-probs and glosses
