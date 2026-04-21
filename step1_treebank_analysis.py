@@ -1,6 +1,4 @@
 """
-Step 1: Treebank PP-Attachment Analysis
-----------------------------------------
 Reads Universal Dependencies (UD) treebanks for English, Japanese, and Arabic.
 For every PP (prepositional/postpositional phrase head), records whether its
 syntactic head is a VERB (VP-attachment) or NOUN (NP-attachment).
@@ -29,49 +27,38 @@ TREEBANKS = {
     "Arabic":   "data/ar_padt-ud-train.conllu",
 }
 
-# UD POS tags that count as verbal or nominal heads
 VERBAL_UPOS  = {"VERB", "AUX"}
 NOMINAL_UPOS = {"NOUN", "PROPN", "PRON"}
 
-# UD dependency relations that mark a PP/adposition dependent
-# 'case' marks the adposition itself; we look at its grandparent's POS
-# We identify PPs by finding tokens whose deprel is 'obl', 'nmod', 'advmod'
-# and whose subtree contains a 'case' dependent.
-PP_DEPRELS = {"obl", "nmod"}   # typical hosts of case-marked PP in UD
+#We find PPs by looking for tokens labeled obl or nmod that have a case child (the preposition/postposition)
+#These tokens act as the main noun of the PP, and their head determines whether it attaches to a verb or noun
+PP_DEPRELS = {"obl", "nmod"}   
 
+#helpers
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
+#Load the file and return a list of parsed sentences
 def load_treebank(path):
-    """Load a CoNLL-U file and return a list of parsed sentences."""
     if not os.path.exists(path):
         raise FileNotFoundError(
-            f"Treebank file not found: {path}\n"
-            f"Please download UD treebanks from https://universaldependencies.org/"
+            f"file not found: {path}\n"
         )
     with open(path, encoding="utf-8") as f:
         data = f.read()
     return conllu.parse(data)
 
-
+#dict {token_id -> token}
 def build_index(sentence):
-    """Return a dict {token_id -> token} for fast lookup."""
     return {token["id"]: token for token in sentence
             if isinstance(token["id"], int)}
 
-
+#Return True if any token in the sentence has deprel='case' and head=token_id
 def has_case_dependent(token_id, index):
-    """Return True if any token in the sentence has deprel='case' and head=token_id."""
     for tok in index.values():
         if tok["deprel"] == "case" and tok["head"] == token_id:
             return True
     return False
 
-
-def analyze_treebank(path):
-    """
+"""
     Analyze a UD treebank and return:
       - vp_count   : number of PPs attaching to a verbal head
       - np_count   : number of PPs attaching to a nominal head
@@ -79,6 +66,7 @@ def analyze_treebank(path):
       - total_sents: number of sentences
       - total_pps  : total PPs found
     """
+def analyze_treebank(path):
     sentences = load_treebank(path)
 
     vp_count    = 0
@@ -131,20 +119,15 @@ def analyze_treebank(path):
         "total_pps":   total_pps,
     }
 
-
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
+#main 
 def main():
-    print("=" * 60)
-    print("STEP 1: Treebank PP-Attachment Baseline Analysis")
-    print("=" * 60)
+
+    print("Treebank PP-Attachment Baseline Analysis")
 
     results = {}
 
     for lang, path in TREEBANKS.items():
-        print(f"\nAnalyzing {lang} ({path}) ...")
+        print(f"\nAnalyzing {lang} ({path})")
         try:
             stats = analyze_treebank(path)
             results[lang] = stats

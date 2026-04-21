@@ -1,22 +1,5 @@
 """
 Step 4 & 5: Ambiguous Test Set + Evaluation
----------------------------------------------
-Step 4: Defines a controlled set of 30 PP-ambiguous sentences per language.
-        Each sentence follows [Subject] [Verb] [NP] [PP] where the PP is
-        semantically compatible with both the verb and the noun.
-
-Step 5: Runs the CKY parser on each sentence, extracts the PP-attachment
-        decision, computes the probability margin, and produces the results
-        table for the paper.
-
-        margin = P(VP-attach parse) - P(NP-attach parse)
-        Positive => VP-attachment preference
-        Negative => NP-attachment preference
-
-Output:
-  - Console results table (copy into paper)
-  - results/results.json  (machine-readable)
-  - results/results.csv   (spreadsheet-ready)
 """
 
 import os
@@ -28,36 +11,18 @@ import pickle
 from step3_cky_parser import cky_parse, get_pp_attachment, NEG_INF
 
 
-# ---------------------------------------------------------------------------
 # Configuration
-# ---------------------------------------------------------------------------
-
 MODEL_DIR   = "models"
 RESULTS_DIR = "results"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 
-# ---------------------------------------------------------------------------
 # Step 4: Ambiguous test sentences
-# ---------------------------------------------------------------------------
-# Each entry: (sentence_string, expected_vp_reading, expected_np_reading)
-# The two "expected" fields are just human annotations for reference —
-# the parser's decision is what we measure.
-#
-# Structure: Subject + Verb + Object NP + PP
-# The PP must be plausibly attached to EITHER the verb OR the object noun.
-#
-# NOTE: For Japanese and Arabic, romanized/transliterated sentences are used
-# here as placeholders. Replace with properly tokenized native-script sentences
-# from a native speaker or verified treebank examples.
-# ---------------------------------------------------------------------------
-
 TEST_SENTENCES = {
 
-    # ------------------------------------------------------------------
     # ENGLISH — 30 sentences
     # PP ambiguity: "with X" / "in X" / "on X" / "at X" / "for X"
-    # ------------------------------------------------------------------
+    
     "English": [
         # (sentence, vp_reading_gloss, np_reading_gloss)
         ("I ate the sushi with chopsticks",
@@ -122,12 +87,10 @@ TEST_SENTENCES = {
          "She used a sponge to clean",        "The window had a sponge"),
     ],
 
-    # ------------------------------------------------------------------
     # JAPANESE — 30 sentences  (romanized placeholders)
     # Replace with native-script tokenized sentences.
     # Structure: Subject + Object + PP (postposition) + Verb (verb-final)
     # Japanese postpositions: で (de, instrument), に (ni, location/goal)
-    # ------------------------------------------------------------------
     "Japanese": [
         ("watashi wa sushi wo hashi de tabeta",
          "ate using chopsticks",  "sushi with chopsticks"),
@@ -191,11 +154,9 @@ TEST_SENTENCES = {
          "watched using projector","video with projector"),
     ],
 
-    # ------------------------------------------------------------------
     # ARABIC — 30 sentences  (transliterated placeholders)
     # Replace with native-script tokenized sentences.
     # Arabic prepositions: بـ (bi, with/instrument), في (fi, in), على (ala, on)
-    # ------------------------------------------------------------------
     "Arabic": [
         ("akaltu alsushi bialeidani",
          "ate using chopsticks",  "sushi with chopsticks"),
@@ -261,17 +222,10 @@ TEST_SENTENCES = {
 }
 
 
-# ---------------------------------------------------------------------------
 # Step 5: Evaluation
-# ---------------------------------------------------------------------------
-
+# Run the CKY parser on each sentence, record attachment decisio and probability margin
+# Returns a list of dicts with per-sentence results
 def evaluate_language(lang, sentences, grammar):
-    """
-    Run the CKY parser on each sentence, record attachment decision
-    and probability margin.
-
-    Returns a list of dicts with per-sentence results.
-    """
     records = []
 
     for idx, entry in enumerate(sentences):
@@ -296,11 +250,6 @@ def evaluate_language(lang, sentences, grammar):
         attachment = get_pp_attachment(tree)
 
         # Compute margin
-        # Since we have one best parse, we approximate:
-        #   if attachment == VP: margin = log_prob - NEG_INF  (strongly VP)
-        #   We compute a soft margin by scoring a "forced" reading.
-        # For a cleaner margin, we report log_prob of best parse
-        # with sign: positive for VP, negative for NP.
         if attachment == "VP":
             margin = log_prob         # positive
         elif attachment == "NP":
@@ -322,7 +271,6 @@ def evaluate_language(lang, sentences, grammar):
 
 
 def summarize(lang, records):
-    """Print and return summary statistics for one language."""
     total   = len(records)
     vp      = sum(1 for r in records if r["attachment"] == "VP")
     np      = sum(1 for r in records if r["attachment"] == "NP")
@@ -356,15 +304,14 @@ def summarize(lang, records):
 
 
 def save_results(all_records, summaries):
-    """Save detailed results and summary to JSON and CSV."""
 
-    # --- Detailed JSON ---
+    # Detailed JSON
     json_path = os.path.join(RESULTS_DIR, "results_detailed.json")
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(all_records, f, ensure_ascii=False, indent=2)
     print(f"\n  Detailed results saved to {json_path}")
 
-    # --- Summary CSV ---
+    # Summary CSV
     csv_path = os.path.join(RESULTS_DIR, "results_summary.csv")
     fieldnames = ["language", "total", "vp_count", "np_count",
                   "vp_rate", "np_rate", "avg_margin", "parse_fails"]
@@ -374,7 +321,7 @@ def save_results(all_records, summaries):
         writer.writerows(summaries)
     print(f"  Summary CSV    saved to {csv_path}")
 
-    # --- Per-sentence CSV ---
+    # Per-sentence CSV 
     per_sent_path = os.path.join(RESULTS_DIR, "results_per_sentence.csv")
     flat = []
     for lang, records in all_records.items():
@@ -390,10 +337,7 @@ def save_results(all_records, summaries):
     print(f"  Per-sentence CSV saved to {per_sent_path}")
 
 
-# ---------------------------------------------------------------------------
 # Main
-# ---------------------------------------------------------------------------
-
 def main():
     print("=" * 60)
     print("STEP 4 & 5: Test Set Evaluation")
@@ -410,21 +354,19 @@ def main():
                   f"Run step2_pcfg_training.py first.")
             continue
 
-        print(f"\n[{lang}] Loading grammar ...")
+        print(f"\n[{lang}] Loading grammar")
         with open(model_path, "rb") as f:
             grammar = pickle.load(f)
 
-        print(f"[{lang}] Evaluating {len(sentences)} sentences ...")
+        print(f"[{lang}] Evaluating {len(sentences)} sentences ")
         records = evaluate_language(lang, sentences, grammar)
         summary = summarize(lang, records)
 
         all_records[lang] = records
         summaries.append(summary)
 
-    # --- Final paper table ---
-    print("\n" + "=" * 60)
-    print("RESULTS TABLE (for paper — Table 2)")
-    print("=" * 60)
+    #Final paper table
+    print("result table")
     print(f"{'Language':<12} {'VP%':>6} {'NP%':>6} {'Avg margin':>12}")
     print("-" * 40)
     for s in summaries:
