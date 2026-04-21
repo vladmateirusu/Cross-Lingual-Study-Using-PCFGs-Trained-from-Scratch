@@ -339,9 +339,7 @@ def save_results(all_records, summaries):
 
 # Main
 def main():
-    print("=" * 60)
     print("STEP 4 & 5: Test Set Evaluation")
-    print("=" * 60)
 
     all_records = {}
     summaries   = []
