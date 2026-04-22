@@ -14,7 +14,7 @@ pp_project/
 ├── step3_cky_parser.py          # Step 3: Probabilistic CKY parser
 ├── step4_5_evaluation.py        # Step 4 & 5: Test set + evaluation
 │
-├── data/                    # Treebank files (you must download these)
+├── data/                    # Treebank files 
 │   ├── en_ewt-ud-train.conllu
 │   ├── ja_gsd-ud-train.conllu
 │   ├── ar_padt-ud-train.conllu
@@ -41,40 +41,14 @@ pp_project/
 pip install conllu nltk
 ```
 
-### 2. Download UD Treebanks
-
-Go to https://universaldependencies.org/ and download:
-- **English**: `UD_English-EWT`  → `en_ewt-ud-train.conllu`
-- **Japanese**: `UD_Japanese-GSD` → `ja_gsd-ud-train.conllu`
-- **Arabic**: `UD_Arabic-PADT`   → `ar_padt-ud-train.conllu`
-
 Place all `.conllu` files in the `data/` directory.
 
-### 3. Convert UD to PTB constituency trees (for Step 2)
+### 2. UD -> PTB conversion: handled by run_pipeline.py
 
-Step 2 (PCFG training) requires **constituency trees** in PTB bracket format.
-UD treebanks use dependency format, so you must convert them.
+The pipeline includes a **custom UD → constituency conversion step internally**  
+(as part of `step2_pcfg_training.py`).
 
-**Option A — Stanford NLP toolkit** (recommended):
-```bash
-# Download: https://stanfordnlp.github.io/CoreNLP/
-java -cp stanford-parser.jar \
-  edu.stanford.nlp.trees.ud.UniversalDependenciesToConstituentConverter \
-  data/en_ewt-ud-train.conllu > data/en_trees_train.txt
-```
-
-**Option B — udapi** (Python):
-```bash
-pip install udapi
-udapy -s read.Conllu files=data/en_ewt-ud-train.conllu \
-      ud.Convert2Pd write.Treex > tmp.treex
-# Then convert .treex to PTB format using a script
-```
-
-**Option C** — If you already have Penn Treebank (for English), use it directly
-and skip conversion. Place PTB-format trees (one per line) in `data/en_trees_train.txt`.
-
-### 4. Run the full pipeline
+### 3. Run the full pipeline
 
 ```bash
 python run_pipeline.py
