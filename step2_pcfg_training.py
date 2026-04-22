@@ -60,14 +60,12 @@ _DEPREL_TO_PHRASE = {
     "case":  "CASE","obl":   "PP",
 }
 
+ 
+# Choose a phrase label for a token's subtree.
+#  - Tokens with deprel obl/nmod that have a case child → PP
+# - Otherwise use the deprel as the label (VP, NP, etc. are rare in UD; most will be things like 'nsubj', 'obj', 'obl', etc.)
+# - Root tokens → S
 def _phrase_label(token, index):
-    """
-    Choose a phrase label for a token's subtree.
-    - Tokens with deprel obl/nmod that have a case child → PP
-    - Otherwise use the deprel as the label (VP, NP, etc. are rare in UD;
-      most will be things like 'nsubj', 'obj', 'obl', etc.)
-    - Root tokens → S
-    """
     deprel = token["deprel"] or "X"
     if deprel == "root":
         return "S"
