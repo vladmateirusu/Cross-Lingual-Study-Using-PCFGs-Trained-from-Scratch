@@ -5,14 +5,14 @@ import re
 import pickle
 from collections import defaultdict
 import math
-import copy
+import conllu
 
 
 #configuration
 TREE_FILES = {
-    "English":  "data/en_trees_train.txt",
-    "Japanese": "data/ja_trees_train.txt",
-    "Arabic":   "data/ar_trees_train.txt",
+    "English":  "data/en_ewt-ud-train.conllu",
+    "Japanese": "data/ja_gsd-ud-train.conllu",
+    "Arabic":   "data/ar_padt-ud-train.conllu",
 }
 
 MODEL_DIR = "models"
@@ -41,49 +41,84 @@ class Tree:
         return f"({self.label} {' '.join(repr(c) for c in self.children)})"
 
 
-#PTB-format tree parser
-def parse_ptb(text):
-    tokens = re.findall(r'\(|\)|[^\s()]+', text)
-    pos    = [0]
+def _has_case_child(token_id, index):
+    """Return True if any token in the sentence has deprel='case' and head=token_id."""
+    for tok in index.values():
+        if tok["deprel"] == "case" and tok["head"] == token_id:
+            return True
+    return False
+ 
+ 
+# UD deprel → phrase label mapping (module-level constant)
+_DEPREL_TO_PHRASE = {
+    "nsubj": "NP",  "obj":   "NP",  "iobj":  "NP",
+    "nmod":  "NP",  "appos": "NP",  "det":   "DT",
+    "amod":  "ADJP","advmod":"ADVP","aux":   "AUX",
+    "cop":   "COP", "mark":  "SBAR","advcl": "SBAR",
+    "acl":   "S",   "xcomp": "VP",  "ccomp": "S",
+    "conj":  "CONJ","cc":    "CC",  "punct": "PUNCT",
+    "case":  "CASE","obl":   "PP",
+}
 
-    def _parse():
-        tok = tokens[pos[0]]
-        pos[0] += 1
-
-        if tok == '(':
-            label    = tokens[pos[0]]; pos[0] += 1
-            children = []
-            while tokens[pos[0]] != ')':
-                children.append(_parse())
-            pos[0] += 1  
-            return Tree(label, children)
+def _phrase_label(token, index):
+    """
+    Choose a phrase label for a token's subtree.
+    - Tokens with deprel obl/nmod that have a case child → PP
+    - Otherwise use the deprel as the label (VP, NP, etc. are rare in UD;
+      most will be things like 'nsubj', 'obj', 'obl', etc.)
+    - Root tokens → S
+    """
+    deprel = token["deprel"] or "X"
+    if deprel == "root":
+        return "S"
+    if deprel in ("obl", "nmod") and _has_case_child(token["id"], index):
+        return "PP"
+    return _DEPREL_TO_PHRASE.get(deprel, deprel.upper())
+ 
+ #Recursively build a Tree rooted at token_id
+def _build_subtree(token_id, index, children_map):
+    token = index[token_id]
+    word  = token["form"] or "_"
+    upos  = token["upos"] or "X"
+ 
+    # Preterminal leaf
+    preterminal = Tree(upos, [Tree(word)])
+ 
+    # Recursively build children subtrees, sorted by position
+    dep_subtrees = [
+        _build_subtree(child_id, index, children_map)
+        for child_id in sorted(children_map.get(token_id, []))
+    ]
+ 
+    phrase_label = _phrase_label(token, index)
+ 
+    if not dep_subtrees:
+        # No dependents → just return the preterminal wrapped in its phrase
+        return Tree(phrase_label, [preterminal])
+    else:
+        return Tree(phrase_label, [preterminal] + dep_subtrees)
+ 
+#Convert a single parsed CoNLL-U sentence to a constituency Tree.
+def ud_sentence_to_tree(sentence):
+    # Build index and children map (skip multi-word tokens)
+    index        = {tok["id"]: tok for tok in sentence
+                    if isinstance(tok["id"], int)}
+    children_map = defaultdict(list)
+    root_id      = None
+ 
+    for tok in index.values():
+        head = tok["head"]
+        if head == 0:
+            root_id = tok["id"]
         else:
-            return Tree(tok)
-
-    tree = _parse()
-
-    if tree.label in ("ROOT", "TOP") and len(tree.children) == 1:
-        tree = tree.children[0]
-    return tree
-
-
-def load_trees(path):
-    if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"file not found: {path}\n"
-        )
-    trees = []
-    with open(path, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                trees.append(parse_ptb(line))
-            except (IndexError, KeyError):
-                continue   # skip malformed trees
-    return trees
-
+            children_map[head].append(tok["id"])
+ 
+    if root_id is None:
+        return None
+ 
+    return _build_subtree(root_id, index, children_map)
+ 
+ 
 
 #the following three functions are to simply imrpove the grammar, annotate_parents, markovize and binarize_right
 #Parent annotation, from Johnson 1998 It helps your PCFG learn better rules:
@@ -156,11 +191,15 @@ def to_cnf(tree):
     return tree
 
 
+
+def _int_defaultdict():
+    return defaultdict(int)
+
 #Rule extraction and MLE 
 class PCFG:
 
     def __init__(self):
-        self._rule_counts = defaultdict(lambda: defaultdict(int))
+        self._rule_counts = defaultdict(_int_defaultdict)
         self._lhs_counts  = defaultdict(int)
         self._root_counts = defaultdict(int)   # actual root labels per tree
  
@@ -221,22 +260,30 @@ class PCFG:
                 else:
                     print(f"   Non-binary rule after CNF: {lhs} -> {rhs}")
  
-        # Unary closure: compute the total probability of reaching B from A
-        # through any chain of unary NT steps A->X->...->B.
-        closed = dict(raw_unary) 
- 
-        nts = list(self.nonterminals)
-        for _ in range(len(nts)):   
-            new_closed = dict(closed)
+        # Unary closure: compute total probability of reaching C from A
+        # through any chain of NT->NT steps.  Uses a forward-index so each
+        # iteration only touches reachable pairs
+        fwd = defaultdict(list)
+        for (b, c), p in raw_unary.items():
+            fwd[b].append((c, p))
+
+        closed = dict(raw_unary)   # (A, B) -> prob
+
+        changed = True
+        while changed:
+            changed = False
+            additions = {}
             for (a, b), p_ab in closed.items():
-                for (b2, c), p_bc in raw_unary.items():
-                    if b2 == b:
-                        key = (a, c)
-                        new_closed[key] = new_closed.get(key, 0.0) + p_ab * p_bc
-            if new_closed == closed:
-                break
-            closed = new_closed
- 
+                for c, p_bc in fwd.get(b, []):
+                    key     = (a, c)
+                    new_val = p_ab * p_bc
+                    cur     = max(closed.get(key, 0.0), additions.get(key, 0.0))
+                    if new_val > cur + 1e-15:
+                        additions[key] = new_val
+            if additions:
+                closed.update(additions)
+                changed = True
+
         # Store closed unary rules as log-probs
         self.unary = {k: math.log(v) for k, v in closed.items() if v > 0}
  
@@ -247,21 +294,28 @@ class PCFG:
               f"{len(self.nonterminals)} non-terminals.")
 
 
+def load_trees(path):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Treebank file not found: {path}")
+    with open(path, encoding="utf-8") as f:
+        sentences = conllu.parse(f.read())
+    trees = [ud_sentence_to_tree(s) for s in sentences]
+    return [t for t in trees if t is not None]
+
+
 #training pipeline
 #Load trees, apply transformations, extract PCFG
-def train_grammar(tree_path, lang, markov_order=2):
+def train_grammar(tree_path, lang, markov_order=MARKOV_ORDER):
     trees = load_trees(tree_path)
     print(f"  Loaded {len(trees)} trees.")
 
     grammar = PCFG()
 
     for tree in trees:
-        # Deep-copy so original trees are never mutated
-        t = copy.deepcopy(tree)
-        annotate_parents(t, parent_label=None)
-        markovize(t, order=markov_order)
-        to_cnf(t)
-        grammar.count_rules(t, is_root=True)
+        annotate_parents(tree)
+        markovize(tree, order=markov_order)
+        to_cnf(tree)
+        grammar.count_rules(tree, is_root=True)
 
     grammar.compile()
 
@@ -276,7 +330,7 @@ def main():
     for lang, path in TREE_FILES.items():
         print(f"\nTraining {lang} PCFG ")
         try:
-            grammar = train_grammar(path, lang, markov_order=MARKOV_ORDER)
+            grammar = train_grammar(path, lang)
             grammars[lang] = grammar
 
             # Save to disk

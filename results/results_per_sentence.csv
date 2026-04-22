@@ -1,0 +1,91 @@
+language,id,sentence,attachment,log_prob,vp_score,np_score,margin,verified,vp_gloss,np_gloss
+English,1,I ate the sushi with chopsticks,OTHER,-43.31072240997507,,,0.0,True,I used chopsticks to eat,The sushi came with chopsticks
+English,2,She photographed the actor with a telephoto lens,VP,-55.076434448694556,-55.076434448694556,,999.0,True,She used a lens to photograph,The actor had a lens
+English,3,He called the manager with the complaint,VP,-46.87246843419281,-46.87246843419281,,999.0,True,He used the complaint to call,The manager had the complaint
+English,4,They attacked the soldier with a knife,OTHER,-60.27984013120361,,,0.0,True,They used a knife to attack,The soldier had a knife
+English,5,I saw the professor with the students,OTHER,-55.72306864912812,,,0.0,True,I saw alongside the students,The professor was with students
+English,6,She read the letter with glasses,VP,-47.93545110839141,-47.93545110839141,,999.0,True,She used glasses to read,The letter came with glasses
+English,7,He painted the wall with a brush,VP,-41.97362857000817,-41.97362857000817,,999.0,True,He used a brush to paint,The wall had a brush on it
+English,8,They found the suspect with the evidence,VP,-46.47826069966857,-46.47826069966857,,999.0,True,They used evidence to find,The suspect had the evidence
+English,9,I met the director with the script,VP,-35.385780930568764,-35.385780930568764,,999.0,True,I met using the script,The director had the script
+English,10,She greeted the guest with a smile,OTHER,-57.45210424767553,,,0.0,True,She smiled while greeting,The guest had a smile
+English,11,He arrested the criminal with a warrant,VP,-52.164169299895136,-52.164169299895136,,999.0,True,He used a warrant to arrest,The criminal had a warrant
+English,12,They cleaned the table with a cloth,VP,-50.592673846693785,-50.592673846693785,,999.0,True,They used a cloth to clean,The table had a cloth on it
+English,13,I bought the car with the sunroof,VP,-33.30633938888893,-33.30633938888893,,999.0,True,I used the sunroof deal to buy,The car had a sunroof
+English,14,She wrote the report with a pen,VP,-51.62876577838056,-51.62876577838056,,999.0,True,She used a pen to write,The report had a pen attached
+English,15,He carried the box with the handle,VP,-45.756691509246515,-45.756691509246515,,999.0,True,He used the handle to carry,The box had a handle
+English,16,They identified the package with a scanner,VP,-38.32304791559647,-38.32304791559647,,999.0,True,They used a scanner to identify,The package had a scanner
+English,17,I examined the patient with a stethoscope,VP,-39.095291053952984,-39.095291053952984,,999.0,True,I used a stethoscope to examine,The patient had a stethoscope
+English,18,She served the dish with chopsticks,VP,-38.97692878138608,-38.97692878138608,,999.0,True,She used chopsticks to serve,The dish came with chopsticks
+English,19,He signed the contract with a pen,VP,-49.32921558908166,-49.32921558908166,,999.0,True,He used a pen to sign,The contract came with a pen
+English,20,They caught the thief with a camera,VP,-47.17378041212557,-47.17378041212557,,999.0,True,They used a camera to catch,The thief had a camera
+English,21,I fixed the machine with a wrench,VP,-32.3610454012188,-32.3610454012188,,999.0,True,I used a wrench to fix,The machine had a wrench
+English,22,She measured the room with a tape,VP,-51.66557190438275,-51.66557190438275,,999.0,True,She used a tape to measure,The room had tape marks
+English,23,He unlocked the door with the key,VP,-31.28709512121599,-31.28709512121599,,999.0,True,He used the key to unlock,The door had a key
+English,24,They decorated the tree with lights,OTHER,-43.75653401876272,,,0.0,True,They used lights to decorate,The tree had lights
+English,25,I helped the student with the assignment,VP,-41.042742655248425,-41.042742655248425,,999.0,True,I helped using the assignment,The student had the assignment
+English,26,She tested the software with a script,VP,-38.86666336218545,-38.86666336218545,,999.0,True,She used a script to test,The software had a script
+English,27,He repaired the bike with the tool,VP,-43.451144218642774,-43.451144218642774,,999.0,True,He used the tool to repair,The bike had the tool
+English,28,They trained the model with the data,VP,-41.7472497975983,-41.7472497975983,,999.0,True,They used data to train,The model had the data
+English,29,I contacted the professor with the form,OTHER,-45.295867082117056,,,0.0,True,I used the form to contact,The professor had the form
+English,30,She cleaned the window with a sponge,VP,-43.62062051551063,-43.62062051551063,,999.0,True,She used a sponge to clean,The window had a sponge
+Japanese,1,私 は 箸 で 寿司 を 食べ た,VP,-67.90032345726041,-67.90032345726041,,999.0,True,箸で食べた,箸付きの寿司
+Japanese,2,彼 は 手紙 で 先生 を 呼ん だ,OTHER,-53.328283096532964,,,0.0,False,手紙で呼んだ,手紙を持つ先生
+Japanese,3,彼女 は カメラ で 学生 を 撮影 し た,OTHER,-52.78460792713335,,,0.0,False,カメラで撮影,カメラを持つ学生
+Japanese,4,私 は 手 で 箱 を 運ん だ,OTHER,-69.52787991765231,,,0.0,False,手で運んだ,手付きの箱
+Japanese,5,彼 は ブラシ で 壁 を 塗っ た,OTHER,-37.673982795753126,,,0.0,False,ブラシで塗った,ブラシ付きの壁
+Japanese,6,彼女 は ペン で レポート を 書い た,OTHER,-56.64444863282676,,,0.0,False,ペンで書いた,ペン付きのレポート
+Japanese,7,私 は 聴診器 で 患者 を 診察 し た,OTHER,-63.30694464219211,,,0.0,False,聴診器で診察,聴診器を持つ患者
+Japanese,8,彼 は ペン で 契約 を 署名 し た,OTHER,-56.09519617919852,,,0.0,False,ペンで署名,ペン付きの契約
+Japanese,9,彼女 は スポンジ で 窓 を 拭い た,NP,-51.4178831127179,,-51.4178831127179,-999.0,False,スポンジで拭いた,スポンジ付きの窓
+Japanese,10,私 は 鍵 で 車 を 開け た,OTHER,-67.31532719462207,,,0.0,False,鍵で開けた,鍵付きの車
+Japanese,11,彼 は カメラ で 犯罪者 を 捕まえ た,OTHER,-36.75769206387897,,,0.0,False,カメラで捕まえた,カメラを持つ犯罪者
+Japanese,12,彼女 は スクリプト で ソフト を テスト し た,OTHER,-56.69663093256149,,,0.0,False,スクリプトでテスト,スクリプト付きのソフト
+Japanese,13,私 は 笑顔 で 客 を 迎え た,OTHER,-65.34124616860007,,,0.0,False,笑顔で迎えた,笑顔の客
+Japanese,14,彼 は 布 で 机 を 拭い た,NP,-50.89414616414402,,-50.89414616414402,-999.0,False,布で拭いた,布付きの机
+Japanese,15,彼女 は スキャナ で 荷物 を 確認 し た,VP,-48.441108369667596,-48.441108369667596,,999.0,False,スキャナで確認,スキャナ付きの荷物
+Japanese,16,私 は 道具 で 自転車 を 修理 し た,OTHER,-64.69323900331199,,,0.0,False,道具で修理,道具付きの自転車
+Japanese,17,彼 は データ で モデル を 訓練 し た,OTHER,-49.399293591644195,,,0.0,False,データで訓練,データ付きのモデル
+Japanese,18,彼女 は テープ で 部屋 を 測っ た,VP,-46.71921610543266,-46.71921610543266,,999.0,False,テープで測った,テープ付きの部屋
+Japanese,19,私 は ライト で 木 を 飾っ た,OTHER,-69.14790865837038,,,0.0,False,ライトで飾った,ライト付きの木
+Japanese,20,彼 は 鍵 で ドア を 開け た,VP,-55.28875905735503,-55.28875905735503,,999.0,False,鍵で開けた,鍵付きのドア
+Japanese,21,彼女 は レンチ で 機械 を 直し た,NP,-51.01241800460973,,-51.01241800460973,-999.0,False,レンチで直した,レンチ付きの機械
+Japanese,22,私 は モップ で 部屋 を 掃除 し た,VP,-63.98987371465266,-63.98987371465266,,999.0,False,モップで掃除,モップ付きの部屋
+Japanese,23,彼 は 眼鏡 で 手紙 を 読ん だ,OTHER,-55.20008527343455,,,0.0,False,眼鏡で読んだ,眼鏡付きの手紙
+Japanese,24,彼女 は ブラシ で 壁 を 塗り まし た,OTHER,-42.17494086041782,,,0.0,False,ブラシで塗った,ブラシ付きの壁
+Japanese,25,私 は フォーク で 食べ物 を 食べ た,OTHER,-67.39870880356112,,,0.0,False,フォークで食べた,フォーク付きの食べ物
+Japanese,26,彼 は カメラ で 写真 を 撮っ た,OTHER,-41.4243397678673,,,0.0,False,カメラで撮った,カメラ付きの写真
+Japanese,27,彼女 は コンピュータ で 仕事 を し た,OTHER,-40.59002448997526,,,0.0,False,コンピュータで仕事,コンピュータ付きの仕事
+Japanese,28,私 は テープ で 箱 を 閉じ た,VP,-63.66456951929595,-63.66456951929595,,999.0,False,テープで閉じた,テープ付きの箱
+Japanese,29,彼 は ナイフ で 革 を 切っ た,VP,-46.34544523435064,-46.34544523435064,,999.0,False,ナイフで切った,ナイフ付きの革
+Japanese,30,彼女 は プロジェクタ で 動画 を 見 た,VP,-45.838897059977704,-45.838897059977704,,999.0,False,プロジェクタで見た,プロジェクタ付きの動画
+Arabic,1,أكلت السوشي بالعيدان,OTHER,-15.5738506182789,,,0.0,False,أكل بالعيدان,سوشي بالعيدان
+Arabic,2,صورت الطالب بالكاميرا,OTHER,-15.5738506182789,,,0.0,False,صور بالكاميرا,طالب بالكاميرا
+Arabic,3,كتبت التقرير بالقلم,OTHER,-25.95848907721772,,,0.0,False,كتب بالقلم,تقرير بالقلم
+Arabic,4,قرأت الرسالة بالنظارتين,OTHER,-28.41522485003902,,,0.0,False,قرأ بالنظارة,رسالة بالنظارة
+Arabic,5,أمسكت المجرم بالدليل,OTHER,-15.5738506182789,,,0.0,False,أمسك بالدليل,مجرم بالدليل
+Arabic,6,نظفت النافذة بالإسفنجة,OTHER,-15.5738506182789,,,0.0,False,نظف بالإسفنجة,نافذة بالإسفنجة
+Arabic,7,فتحت الباب بالمفتاح,OTHER,-26.8547071731915,,,0.0,False,فتح بالمفتاح,باب بالمفتاح
+Arabic,8,قست الغرفة بالشريط,OTHER,-22.073705927685097,,,0.0,False,قاس بالشريط,غرفة بالشريط
+Arabic,9,أصلحت الدراجة بالأداة,OTHER,-15.5738506182789,,,0.0,False,أصلح بالأداة,دراجة بالأداة
+Arabic,10,رسمت الجدار بالفرشاة,OTHER,-22.76685310824504,,,0.0,False,رسم بالفرشاة,جدار بالفرشاة
+Arabic,11,أمسكت المخرب بالماسحة,OTHER,-15.5738506182789,,,0.0,False,أمسك بالماسحة,مخرب بالماسحة
+Arabic,12,ضربت المسمار بالمطرقة,OTHER,-15.815932564115947,,,0.0,False,ضرب بالمطرقة,مسمار بالمطرقة
+Arabic,13,نظفت المائدة بالقماش,OTHER,-24.376291020679144,,,0.0,False,نظف بالقماش,مائدة بالقماش
+Arabic,14,رسمت الحائط بالفرشاة,OTHER,-24.376291020679144,,,0.0,False,رسم بالفرشاة,حائط بالفرشاة
+Arabic,15,فحصت المريض بالسماعة,OTHER,-24.376291020679144,,,0.0,False,فحص بالسماعة,مريض بالسماعة
+Arabic,16,أمسكت السارق بالدليل,OTHER,-15.5738506182789,,,0.0,False,أمسك بالدليل,سارق بالدليل
+Arabic,17,قرأت المقالة بالنظارتين,OTHER,-21.404543916866835,,,0.0,False,قرأ بالنظارة,مقالة بالنظارة
+Arabic,18,كتب المقاول العقد بالقلم,OTHER,-28.74620659203856,,,0.0,False,كتب بالقلم,عقد بالقلم
+Arabic,19,ذبحت اللحم بالسكين,OTHER,-15.5738506182789,,,0.0,False,ذبح بالسكين,لحم بالسكين
+Arabic,20,نشرت الخشب بالمنشار,VP,-29.919695991749663,-29.919695991749663,,999.0,False,نشر بالمنشار,خشب بالمنشار
+Arabic,21,حفرت الأرض بالمجرفة,OTHER,-22.989996659559253,,,0.0,False,حفر بالمجرفة,أرض بالمجرفة
+Arabic,22,رميت الكرة بيدي,OTHER,-22.76685310824504,,,0.0,False,رمى بيديه,كرة بيديه
+Arabic,23,فتحت النافذة بالمقبض,OTHER,-20.711396736306888,,,0.0,False,فتح بالمقبض,نافذة بالمقبض
+Arabic,24,لمست المريض بيده,OTHER,-24.376291020679144,,,0.0,False,لمس بيده,مريض بيده
+Arabic,25,نظفت السجادة بالمكنسة,OTHER,-15.5738506182789,,,0.0,False,نظف بالمكنسة,سجادة بالمكنسة
+Arabic,26,ركبت الدراجة بيدي,OTHER,-15.5738506182789,,,0.0,False,ركب بيديه,دراجة بيديه
+Arabic,27,اصطاد السمك بشبكته,VP,-26.797052894263935,-26.797052894263935,,999.0,False,اصطاد بشبكته,سمك بشبكته
+Arabic,28,قطعت الورق بالمقص,OTHER,-28.820689958147188,,,0.0,False,قطع بالمقص,ورق بالمقص
+Arabic,29,أعددت الطعام بالسكين,OTHER,-24.376291020679144,,,0.0,False,أعد بالسكين,طعام بالسكين
+Arabic,30,حركت الصندوق بالرافعة,OTHER,-21.668240819576933,,,0.0,False,حرك بالرافعة,صندوق بالرافعة

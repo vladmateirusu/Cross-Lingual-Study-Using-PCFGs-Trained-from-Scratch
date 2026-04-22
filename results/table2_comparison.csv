@@ -1,0 +1,4 @@
+Language,Baseline_VP%,Baseline_NP%,Parser_VP%,Parser_NP%,Avg_Margin (VP_score - NP_score),Parse_Fails,Verified_Sents
+English,46.7,41.6,80.0,0.0,799.2000,0,30
+Japanese,46.1,50.9,26.7,10.0,166.5000,0,1
+Arabic,27.7,60.2,6.7,0.0,66.6000,0,0

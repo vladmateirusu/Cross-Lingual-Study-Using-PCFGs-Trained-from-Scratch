@@ -1,0 +1,4 @@
+language,total,vp_count,np_count,vp_rate,np_rate,avg_margin,parse_fails,verified_total
+English,30,24,0,80.0,0.0,799.2,0,30
+Japanese,30,8,3,26.666666666666668,10.0,166.5,0,1
+Arabic,30,2,0,6.666666666666667,0.0,66.6,0,0

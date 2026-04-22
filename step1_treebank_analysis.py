@@ -1,26 +1,9 @@
-"""
-Reads Universal Dependencies (UD) treebanks for English, Japanese, and Arabic.
-For every PP (prepositional/postpositional phrase head), records whether its
-syntactic head is a VERB (VP-attachment) or NOUN (NP-attachment).
-Outputs baseline attachment rates and PP frequency per sentence.
-
-Expected treebank files (CoNLL-U format):
-  data/en_ewt-ud-train.conllu
-  data/ja_gsd-ud-train.conllu
-  data/ar_padt-ud-train.conllu
-
-Download from: https://universaldependencies.org/
-"""
-
 import os
 import conllu
 from collections import defaultdict
 
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
-
+## Configuration
 TREEBANKS = {
     "English": "data/en_ewt-ud-train.conllu",
     "Japanese": "data/ja_gsd-ud-train.conllu",
@@ -58,14 +41,7 @@ def has_case_dependent(token_id, index):
             return True
     return False
 
-"""
-    Analyze a UD treebank and return:
-      - vp_count   : number of PPs attaching to a verbal head
-      - np_count   : number of PPs attaching to a nominal head
-      - other_count: PPs attaching to other POS
-      - total_sents: number of sentences
-      - total_pps  : total PPs found
-    """
+
 def analyze_treebank(path):
     sentences = load_treebank(path)
 
@@ -153,12 +129,8 @@ def main():
         except FileNotFoundError as e:
             print(f"  [SKIPPED] {e}")
 
-    # --- Summary table ---
-    print("\n" + "=" * 60)
-    print("SUMMARY TABLE (for paper)")
-    print("=" * 60)
+    print("summary")
     print(f"{'Language':<12} {'VP%':>6} {'NP%':>6} {'PPs/sent':>10}")
-    print("-" * 38)
     for lang, stats in results.items():
         vp    = stats["vp_count"]
         np    = stats["np_count"]

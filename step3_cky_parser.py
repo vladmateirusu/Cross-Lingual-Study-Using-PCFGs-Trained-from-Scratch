@@ -64,12 +64,19 @@ def cky_parse(tokens, grammar):
                     cell.log_prob  = log_p
                     chart[i][i][A] = cell
 
-        # Unknown word fallback
         if not chart[i][i]:
-            for (A, _) in grammar.lexical:
+            if not hasattr(grammar, '_nt_logprob_cache'):
+                # Build cache: NT -> log(1/num_NTs) scaled by lexical count
+                from collections import Counter
+                nt_freq = Counter(A for (A, _) in grammar.lexical)
+                total = sum(nt_freq.values())
+                grammar._nt_logprob_cache = {
+                    A: math.log(cnt / total) for A, cnt in nt_freq.items()
+                }
+            for A, lp in grammar._nt_logprob_cache.items():
                 if A not in chart[i][i]:
                     cell           = ChartCell()
-                    cell.log_prob  = math.log(1e-10)
+                    cell.log_prob  = lp
                     chart[i][i][A] = cell
 
         # Unary closure over span-1 after lexical init
@@ -148,6 +155,10 @@ def _base_label(label):
     return label.split("^")[0].split("+")[0].split("|")[0]
 
 
+# Nominal base labels 
+_NOMINAL_BASES = {"NP", "NML", "NOUN", "PROPN", "PRON", "NN", "NNS", "NNP", "NNPS"}
+
+
 def _find_pp_parent(tree, parent_label):
     if tree is None:
         return None
@@ -155,13 +166,10 @@ def _find_pp_parent(tree, parent_label):
 
     if base == "PP" and parent_label is not None:
         parent_base = _base_label(parent_label)
-        if parent_base in {"VP", "VBZ", "VBD", "VBP", "VBN", "VBG", "MD",
-                           "VERB", "AUX", "S", "SBAR"}:
-            return "VP"
-        elif parent_base in {"NP", "NML", "NOUN", "PROPN", "PRON"}:
+        if parent_base in _NOMINAL_BASES:
             return "NP"
         else:
-            return parent_base
+            return "VP"
 
     for child in tree.children:
         result = _find_pp_parent(child, tree.label)
@@ -179,10 +187,17 @@ def score_attachment(tokens, grammar, attachment_type):
     att = get_pp_attachment(tree)
     return log_prob if att == attachment_type else NEG_INF
 
+#Strip Arabic diacritics so test sentences match unvowelized PADT training token
+def _normalize_tokens(tokens):
+    result = []
+    for tok in tokens:
+        stripped = ''.join(c for c in tok if not (0x064B <= ord(c) <= 0x065F))
+        result.append(stripped)
+    return result
+
 
 def parse_sentence(sentence, grammar):
-    """Parse a sentence string, return (tree, log_prob, attachment)."""
-    tokens = sentence.strip().split()
+    tokens = _normalize_tokens(sentence.strip().split())
     tree, log_prob = cky_parse(tokens, grammar)
     if tree is None:
         return None, NEG_INF, None
@@ -207,7 +222,7 @@ def main():
                   f"Run step2_pcfg_training.py first.")
             continue
 
-        print(f"\n[{lang}] Loading grammar ...")
+        print(f"\n[{lang}] Loading grammar")
         with open(model_path, "rb") as f:
             grammar = pickle.load(f)
 
