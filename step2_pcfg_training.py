@@ -5,6 +5,7 @@ import re
 import pickle
 from collections import defaultdict
 import math
+from typing import Any
 import conllu
 
 
@@ -205,7 +206,7 @@ class PCFG:
         self.unary        = {}   # {(A, B)    -> log_prob}  NT -> NT
         self.binary       = {}   # {(A, B, C) -> log_prob}
         self.nonterminals = set()
-        self.terminals    = set()
+        self.terminals    = set[Any]()
         self.start        = None
 
 #extract and count all rules from a tree

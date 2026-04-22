@@ -408,10 +408,6 @@ def save_results(all_records, summaries, baseline_results=None):
 
 # Main
 def main(baseline_results=None):
-    """
-    baseline_results: dict returned by step1_treebank_analysis.main()
-    If provided, Table 2 (baseline vs. parser) is written to results/.
-    """
     print("STEP 4 & 5: Test Set Evaluation")
 
     all_records = {}
@@ -437,10 +433,8 @@ def main(baseline_results=None):
         summaries.append(summary)
 
     # Print Table 2 to stdout
-    print("\n" + "=" * 72)
     print("TABLE 2 — Treebank Baseline vs. PCFG Parser (30-sentence test set)")
     print("Margin = mean(vp_score − np_score) per language")
-    print("=" * 72)
 
     if baseline_results:
         header = (f"{'Language':<12} {'Base VP%':>9} {'Base NP%':>9} "
@@ -462,12 +456,10 @@ def main(baseline_results=None):
     else:
         # No baseline passed — print parser-only table
         print(f"{'Language':<12} {'Parser VP%':>11} {'Parser NP%':>11} {'Avg Margin':>11}")
-        print("-" * 50)
         for s in summaries:
             print(f"{s['language']:<12} {s['vp_rate']:>10.1f}% "
                   f"{s['np_rate']:>10.1f}% {s['avg_margin']:>11.4f}")
 
-    print("=" * 72)
     print("Note: no gold labels exist for the test set by design.")
     print("Margin > 0 → grammar assigns higher probability to VP-attached parse.")
     print("Margin < 0 → grammar assigns higher probability to NP-attached parse.")
