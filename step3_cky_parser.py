@@ -1,5 +1,3 @@
-#Step 3: Probabilistic CKY Parser
-
 import math
 import pickle
 import os
@@ -206,7 +204,7 @@ def parse_sentence(sentence, grammar):
 
 # Demo
 def main():
-    print(" Probabilistic CKY Parser — Demo")
+    print(" Probabilistic CKY Parser, Demo")
 
     model_dir = "models"
     test_sentences = {

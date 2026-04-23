@@ -1,5 +1,3 @@
-#Step 2: PCFG Training
-
 import os
 import re
 import pickle
@@ -22,10 +20,8 @@ os.makedirs(MODEL_DIR, exist_ok=True)
 MARKOV_ORDER = 2   # horizontal Markov order (bigram = 2)
 
 
-#tree data structure
+#tree data structure, recursive tree structure
 class Tree:
-    """Simple recursive tree structure."""
-
     def __init__(self, label, children=None):
         self.label    = label
         self.children = children if children is not None else []
@@ -41,9 +37,8 @@ class Tree:
             return self.label
         return f"({self.label} {' '.join(repr(c) for c in self.children)})"
 
-
+#Return True if any token in the sentence has deprel='case' and head=token_id
 def _has_case_child(token_id, index):
-    """Return True if any token in the sentence has deprel='case' and head=token_id."""
     for tok in index.values():
         if tok["deprel"] == "case" and tok["head"] == token_id:
             return True

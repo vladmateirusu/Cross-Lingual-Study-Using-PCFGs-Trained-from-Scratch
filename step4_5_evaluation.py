@@ -216,8 +216,8 @@ TEST_SENTENCES = {
 
 
 # Step 5: Evaluation
+#Strip Arabic diacritics so tokens match unvowelized PADT training vocab
 def _normalize(tokens):
-    """Strip Arabic diacritics so tokens match unvowelized PADT training vocab."""
     return [''.join(c for c in t if not (0x064B <= ord(c) <= 0x065F))
             for t in tokens]
 
@@ -225,16 +225,8 @@ def _collect_labels(tree):
     if tree is None: return []
     return [tree.label] + [l for c in tree.children for l in _collect_labels(c)]
 
-
+#Parse each sentence and record attachment decision + margin
 def evaluate_language(lang, sentences, grammar):
-    """
-    Parse each sentence and record attachment decision + margin.
-
-    Margin = vp_score − np_score  where each score is the log-probability
-    of the best parse that produces the corresponding attachment.
-    If only one attachment type has a valid parse, the margin is set to
-    ±MAX_UNILATERAL so it is clearly distinguishable but not ±inf in CSVs.
-    """
     MAX_UNILATERAL = 999.0
     records = []
 
